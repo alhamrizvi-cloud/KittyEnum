@@ -78,8 +78,8 @@ sudo ln -s /path/to/rockyou.txt /usr/share/wordlists/rockyou.txt
 
 The project now supports both:
 
-- `autoenum.py`
 - `kittyenum.py`
+- `autoenum.py` (compatibility wrapper)
 - `kittyenum`
 
 If you want to update your local docs or scripts, use `kittyenum` for the shortcut command.

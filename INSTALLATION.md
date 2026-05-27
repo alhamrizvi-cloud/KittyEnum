@@ -45,7 +45,7 @@ python3 -m pip install -r requirements.txt
 Use the normal entrypoint:
 
 ```bash
-python3 autoenum.py <IP> <HOSTNAME> [options]
+python3 kittyenum.py <IP> <HOSTNAME> [options]
 ```
 
 Or use the alias entrypoint:

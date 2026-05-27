@@ -50,13 +50,13 @@ The installer supports these profiles:
 ### Usage
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> [options]
+sudo python3 kittyenum.py <IP> <HOSTNAME> [options]
 ```
 
 Example:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb
+sudo python3 kittyenum.py 10.10.10.10 target.htb
 ```
 
 ### Standard options
@@ -138,43 +138,43 @@ sudo python3 autoenum.py 10.10.10.10 target.htb
 Run the default enumeration workflow:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb
+sudo python3 kittyenum.py 10.10.10.10 target.htb
 ```
 
 Run Linux-focused enumeration:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --linux
+sudo python3 kittyenum.py 10.10.10.10 target.htb --linux
 ```
 
 Run privilege escalation helper scripts only:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --privesc
+sudo python3 kittyenum.py 10.10.10.10 target.htb --privesc
 ```
 
 Run Active Directory enumeration with credentials:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --ad --ad-user user --ad-pass password --ad-domain domain.local
+sudo python3 kittyenum.py 10.10.10.10 target.htb --ad --ad-user user --ad-pass password --ad-domain domain.local
 ```
 
 Run AWS enumeration using a profile and region:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --aws --aws-profile default --aws-region us-east-1
+sudo python3 kittyenum.py 10.10.10.10 target.htb --aws --aws-profile default --aws-region us-east-1
 ```
 
 Run subdomain enumeration with custom wordlist and resolvers:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --subdomains --subdomains-wordlist /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --subdomains-resolvers ./resolvers.txt
+sudo python3 kittyenum.py 10.10.10.10 target.htb --subdomains --subdomains-wordlist /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --subdomains-resolvers ./resolvers.txt
 ```
 
 Download AD PowerShell snippets and script files:
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb --ad-ps --ad-ps-download
+sudo python3 kittyenum.py 10.10.10.10 target.htb --ad-ps --ad-ps-download
 ```
 
 ---

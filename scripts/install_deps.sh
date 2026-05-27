@@ -212,4 +212,4 @@ for wordlist in "${REQUIRED_WORDLISTS[@]}"; do
 done
 
 ok "KittyEnum dependency installation complete"
-info "You can now run: sudo python3 autoenum.py <IP> <HOSTNAME> [options]"
+info "You can now run: sudo python3 kittyenum.py <IP> <HOSTNAME> [options]"

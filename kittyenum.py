@@ -8,12 +8,12 @@ It validates local tooling and wordlists, runs TCP/UDP scans, adds host mappings
 and performs directory, virtual-host, and parameter fuzzing in one pass.
 
 USAGE:
-  sudo python3 autoenum.py <IP> <HOSTNAME> [options]
+  sudo python3 kittyenum.py <IP> <HOSTNAME> [options]
 
 EXAMPLES:
-  sudo python3 autoenum.py 10.10.10.10 target.htb
-  sudo python3 autoenum.py 10.10.10.10 target.htb -p 8080 --big
-  sudo python3 autoenum.py 10.10.10.10 target.htb --no-udp --skip-verify
+  sudo python3 kittyenum.py 10.10.10.10 target.htb
+  sudo python3 kittyenum.py 10.10.10.10 target.htb -p 8080 --big
+  sudo python3 kittyenum.py 10.10.10.10 target.htb --no-udp --skip-verify
 
 PHASES:
   0  Verify tools + wordlists
@@ -269,7 +269,7 @@ def add_hosts(ip, hostname):
     entry = f"{ip}\t{hostname}"
     try:
         with open("/etc/hosts", "a") as f:
-            f.write(f"\n# autoenum.py\n{entry}\n")
+            f.write(f"\n# kittyenum.py\n{entry}\n")
         ok(f"Added: {entry}")
         resolved = resolve_ip(hostname)
         if resolved == ip:

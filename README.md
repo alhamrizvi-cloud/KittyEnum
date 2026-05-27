@@ -31,47 +31,47 @@ For lightweight Python setup, see `INSTALLATION.md`. To use the shorter command 
 ## Usage
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> [options]
+sudo python3 kittyenum.py <IP> <HOSTNAME> [options]
 ```
 
 Run additional Linux-focused enumeration for HTB machines:
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> --linux
+sudo python3 kittyenum.py <IP> <HOSTNAME> --linux
 ```
 
 Run the SSH-friendly privilege escalation helper module after a shell is available:
 
 ```bash
-python3 autoenum.py <IP> <HOSTNAME> --privesc
+python3 kittyenum.py <IP> <HOSTNAME> --privesc
 ```
 Run AWS enumeration using AWS CLI credentials or profile:
 
 ```bash
-python3 autoenum.py <IP> <HOSTNAME> --aws --aws-profile default --aws-region us-east-1
+python3 kittyenum.py <IP> <HOSTNAME> --aws --aws-profile default --aws-region us-east-1
 ```
 
 Run AWS S3 bucket enumeration with no-sign-request:
 
 ```bash
-python3 autoenum.py <IP> <HOSTNAME> --aws --aws-region us-east-1 --aws-bucket target-bucket-name
+python3 kittyenum.py <IP> <HOSTNAME> --aws --aws-region us-east-1 --aws-bucket target-bucket-name
 ```
 
 Run subdomain enumeration with passive, active, and probing stages:
 
 ```bash
-python3 autoenum.py <IP> <HOSTNAME> --subdomains --subdomains-wordlist /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --subdomains-resolvers ./resolvers.txt
+python3 kittyenum.py <IP> <HOSTNAME> --subdomains --subdomains-wordlist /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --subdomains-resolvers ./resolvers.txt
 ```
 Generate Active Directory PowerShell enumeration snippets:
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> --ad-ps
+sudo python3 kittyenum.py <IP> <HOSTNAME> --ad-ps
 ```
 
 Download the AD PowerShell tool scripts to the output directory:
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> --ad-ps --ad-ps-download
+sudo python3 kittyenum.py <IP> <HOSTNAME> --ad-ps --ad-ps-download
 ```
 
 KittyEnum now distributes specialized modules in `kittyenum/`:
@@ -88,7 +88,7 @@ KittyEnum now distributes specialized modules in `kittyenum/`:
 Use the AD module to perform full Active Directory reconnaissance with optional credentials:
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> --ad --ad-user <USER> --ad-pass <PASS> --ad-domain <DOMAIN>
+sudo python3 kittyenum.py <IP> <HOSTNAME> --ad --ad-user <USER> --ad-pass <PASS> --ad-domain <DOMAIN>
 ```
 
 When credentials are omitted, KittyEnum will attempt anonymous AD/LDAP enumeration where possible.
@@ -96,5 +96,5 @@ When credentials are omitted, KittyEnum will attempt anonymous AD/LDAP enumerati
 ## Example
 
 ```bash
-sudo python3 autoenum.py 10.10.10.10 target.htb -p 8080 --big
+sudo python3 kittyenum.py 10.10.10.10 target.htb -p 8080 --big
 ```
