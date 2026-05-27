@@ -21,6 +21,7 @@ This script checks for the required tools and wordlists, installs missing packag
 - Auto-verifies essential tools: `nmap`, `gobuster`, `ffuf`
 - Checks popular wordlists and warns if required files are missing
 - Performs SYN/UDP scans, host mapping, directory discovery, virtual host enumeration, and parameter fuzzing
+- Includes optional HTB Linux enumeration using Nmap scripts, enum4linux, and SSH audit
 - Saves results to a dedicated `recon-<hostname>-<timestamp>/` output directory
 - Includes a polished, kitty-themed banner and tool branding
 
@@ -28,6 +29,12 @@ This script checks for the required tools and wordlists, installs missing packag
 
 ```bash
 sudo python3 autoenum.py <IP> <HOSTNAME> [options]
+```
+
+Run additional Linux-focused enumeration for HTB machines:
+
+```bash
+sudo python3 autoenum.py <IP> <HOSTNAME> --linux
 ```
 
 ## Example

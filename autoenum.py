@@ -465,6 +465,48 @@ def ffuf_params(hostname, port, param_path, outdir):
     ]
     run_cmd(cmd, outfile, "FFUF Params")
 
+# ─── PHASE 11/12: HTB LINUX ENUMERATION ───────────────────────────────────────
+def nmap_linux_enum(target, outdir):
+    ph(11, "Nmap Linux — service/script enumeration")
+    outfile = f"{outdir}/nmap_linux_enum.txt"
+    cmd = [
+        "nmap",
+        "-sV",
+        "-p", "22,80,111,139,445,2049",
+        "--script", "default,discovery,auth,vuln,smb-enum*",
+        "--min-rate", "1000",
+        "-oN", outfile,
+        target,
+    ]
+    run_cmd(cmd, outfile, "Nmap Linux Enumeration")
+
+
+def enum4linux_scan(target, outdir):
+    ph(12, "Enum4linux — SMB/host enumeration")
+    if not shutil.which("enum4linux"):
+        warn("enum4linux not installed — skipping")
+        return
+    outfile = f"{outdir}/enum4linux.txt"
+    cmd = ["enum4linux", "-a", target]
+    run_cmd(cmd, outfile, "Enum4linux")
+
+
+def ssh_audit_scan(target, outdir):
+    if not shutil.which("ssh-audit"):
+        warn("ssh-audit not installed — skipping")
+        return
+    ph(13, "SSH audit")
+    outfile = f"{outdir}/ssh_audit.txt"
+    cmd = ["ssh-audit", target]
+    run_cmd(cmd, outfile, "SSH Audit")
+
+
+def linux_enum(target, hostname, outdir):
+    ph("⧗", "HTB Linux enumeration")
+    nmap_linux_enum(target, outdir)
+    enum4linux_scan(target, outdir)
+    ssh_audit_scan(target, outdir)
+
 # ─── SUMMARY ──────────────────────────────────────────────────────────────────
 def summary(outdir, target, hostname, start_time):
     elapsed = datetime.now() - start_time
@@ -510,6 +552,7 @@ def main():
     p.add_argument("--big",           action="store_true",   help="Use raft-medium for gobuster dir")
     p.add_argument("--param-path",    default="/",           help="Path for param fuzz (default: /)")
     p.add_argument("--skip-verify",   action="store_true",   help="Skip tool/wordlist verification")
+    p.add_argument("--linux",         action="store_true",   help="Run extra HTB Linux enumeration phases")
     args = p.parse_args()
 
     start  = datetime.now()
@@ -552,6 +595,9 @@ def main():
 
     if not args.no_params:
         ffuf_params(args.hostname, args.port, args.param_path, outdir)
+
+    if args.linux:
+        linux_enum(args.target, args.hostname, outdir)
 
     summary(outdir, args.target, args.hostname, start)
 

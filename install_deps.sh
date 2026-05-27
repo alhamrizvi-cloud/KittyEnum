@@ -102,8 +102,8 @@ info "KittyEnum dependency installer started"
 
 ensure_apt
 
-REQUIRED_COMMANDS=(python3 nmap gobuster ffuf)
-REQUIRED_PACKAGES=(nmap gobuster ffuf seclists wordlists)
+REQUIRED_COMMANDS=(python3 nmap gobuster ffuf enum4linux ssh-audit)
+REQUIRED_PACKAGES=(nmap gobuster ffuf enum4linux ssh-audit seclists wordlists)
 REQUIRED_WORDLISTS=("/usr/share/seclists" "/usr/share/wordlists/rockyou.txt")
 
 missing_tools=()
