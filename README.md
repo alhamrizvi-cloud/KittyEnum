@@ -6,6 +6,16 @@ web directories, virtual hosts, and hidden parameters with fuzzing.
 
 KittyEnum is designed to be fast, repeatable, and easy to use while giving you rich, timestamped output for follow-up analysis.
 
+## Dependency Installer
+
+Run the bundled installer to verify and install all required dependencies:
+
+```bash
+./install_deps.sh
+```
+
+This script checks for the required tools and wordlists, installs missing packages with `apt`, and extracts `rockyou.txt` if needed.
+
 ## Features
 
 - Auto-verifies essential tools: `nmap`, `gobuster`, `ffuf`
