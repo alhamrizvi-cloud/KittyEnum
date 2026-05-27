@@ -54,6 +54,24 @@ A convenience runner is included to connect VPN, run network recon, connect SSH,
 python3 attack_automation/run_attack.py --config attack_automation/config.yaml
 ```
 
+If you want the model to generate extra enumeration commands, add `--llm-auto-enum`:
+
+```bash
+python3 attack_automation/run_attack.py --config attack_automation/config.yaml --llm-auto-enum
+```
+
+To execute the commands returned by the model, add `--execute-llm`:
+
+```bash
+python3 attack_automation/run_attack.py --config attack_automation/config.yaml --llm-auto-enum --execute-llm
+```
+
+Use `--local-llm` to run the model-generated commands locally over the VPN instead of on the SSH host:
+
+```bash
+python3 attack_automation/run_attack.py --config attack_automation/config.yaml --llm-auto-enum --execute-llm --local-llm
+```
+
 This will:
 
 1. connect VPN if configured
@@ -61,7 +79,8 @@ This will:
 3. connect to the target via SSH
 4. run remote host enumeration and initial access discovery
 5. run privilege escalation enumeration
-6. request an AI-generated next-step plan from the configured LLM
+6. ask the model for additional enumeration commands
+7. optionally execute those commands if requested
 
 ## Workflow
 

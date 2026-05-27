@@ -1,4 +1,4 @@
-gi#!/usr/bin/env python3
+#!/usr/bin/env python3
 """KittyEnum privilege escalation helper module.
 This module performs SSH-friendly local enumeration for Linux privilege escalation.
 It avoids installing external root-level tools and focuses on user-level checks.

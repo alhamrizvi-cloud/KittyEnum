@@ -1,4 +1,4 @@
-pyt#!/usr/bin/env bash
+#!/usr/bin/env bash
 set -euo pipefail
 
 # KittyEnum dependency installer

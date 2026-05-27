@@ -10,6 +10,9 @@ llm:
   max_tokens: 1500
   temperature: 0.2
   api_key: null
+  auto_enum: false
+  execute_commands: false
+  local_execution: false
 
 host:
   hostname: "example-target.local"

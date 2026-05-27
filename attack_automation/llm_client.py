@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """LLM client wrapper for OpenAI-style providers."""
 
+import json
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 try:
     import openai
@@ -49,3 +50,22 @@ class LLMClient:
             f"{context}"
         )
         return self.generate(prompt)
+
+    def generate_command_list(self, prompt: str, max_tokens: int = 1000, temperature: float = 0.2) -> list[str]:
+        output = self.generate(prompt, max_tokens=max_tokens, temperature=temperature)
+        try:
+            return json.loads(output)
+        except json.JSONDecodeError:
+            commands = []
+            for line in output.splitlines():
+                line = line.strip().strip("` ")
+                if not line:
+                    continue
+                if line.startswith("[") or line.startswith("{"):
+                    try:
+                        return json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                if line.startswith("sudo") or line.startswith("nmap") or line.startswith("curl") or line.startswith("find") or line.startswith("cat") or line.startswith("grep") or line.startswith("ss "):
+                    commands.append(line)
+            return commands

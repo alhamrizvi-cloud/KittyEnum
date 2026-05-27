@@ -148,6 +148,42 @@ class AttackManager:
             raise AttackManagerError("LLM client is not configured")
         return self.llm.generate(prompt, max_tokens=self.config.get("llm", {}).get("max_tokens", 1000))
 
+    def ask_llm_commands(self, context: Dict[str, Any], max_tokens: int = 1000) -> list[str]:
+        if self.llm is None:
+            raise AttackManagerError("LLM client is not configured")
+
+        prompt = (
+            "You are an AI enumeration assistant. Based on the following target configuration and reconnaissance results, "
+            "generate a JSON array of safe Linux shell commands for additional enumeration or foothold discovery. "
+            "Do not include explanations, only return valid JSON."
+            "\n\nTarget configuration:\n"
+            f"{self.config}\n\n"
+            "Recon context:\n"
+            f"{context}\n"
+        )
+        return self.llm.generate_command_list(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=self.config.get("llm", {}).get("temperature", 0.2),
+        )
+
+    def run_llm_enumeration(self, context: Dict[str, Any], execute: bool = False, local: bool = False) -> Dict[str, Any]:
+        commands = self.ask_llm_commands(context)
+        result: Dict[str, Any] = {"commands": commands}
+
+        if execute:
+            execution = []
+            for cmd in commands:
+                if local:
+                    output = self._run_local_command(cmd)
+                else:
+                    code, out, err = self.ssh.run_command(cmd)
+                    output = out if code == 0 else err
+                execution.append({"command": cmd, "output": output})
+            result["execution"] = execution
+
+        return result
+
     def run_full_attack(self) -> Dict[str, Any]:
         results: Dict[str, Any] = {}
 
@@ -166,6 +202,13 @@ class AttackManager:
         results["privilege_escalation"] = self.run_privilege_escalation()
 
         if self.llm is not None:
+            if self.config.get("llm", {}).get("auto_enum", False):
+                results["llm_enumeration"] = self.run_llm_enumeration(
+                    context=results,
+                    execute=self.config.get("llm", {}).get("execute_commands", False),
+                    local=self.config.get("llm", {}).get("local_execution", False),
+                )
+
             prompt = (
                 "Based on the following results from network and host reconnaissance, suggest the next safe initial foothold and privilege escalation tasks.\n\n"
                 f"{results}\n"
