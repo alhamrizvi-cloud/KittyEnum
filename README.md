@@ -22,6 +22,7 @@ This script checks for the required tools and wordlists, installs missing packag
 - Checks popular wordlists and warns if required files are missing
 - Performs SYN/UDP scans, host mapping, directory discovery, virtual host enumeration, and parameter fuzzing
 - Includes optional HTB Linux enumeration using Nmap scripts, enum4linux, and SSH audit
+- Includes SSH-friendly local privilege escalation enumeration that avoids installing root-only tools automatically
 - Saves results to a dedicated `recon-<hostname>-<timestamp>/` output directory
 - Includes a polished, kitty-themed banner and tool branding
 
@@ -37,10 +38,10 @@ Run additional Linux-focused enumeration for HTB machines:
 sudo python3 autoenum.py <IP> <HOSTNAME> --linux
 ```
 
-Run the privilege escalation helper module after a shell is available:
+Run the SSH-friendly privilege escalation helper module after a shell is available:
 
 ```bash
-sudo python3 autoenum.py <IP> <HOSTNAME> --privesc
+python3 autoenum.py <IP> <HOSTNAME> --privesc
 ```
 
 Generate Active Directory PowerShell enumeration snippets:
