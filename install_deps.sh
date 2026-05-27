@@ -104,6 +104,8 @@ ensure_apt
 
 REQUIRED_COMMANDS=(python3 nmap gobuster ffuf enum4linux ssh-audit)
 REQUIRED_PACKAGES=(nmap gobuster ffuf enum4linux ssh-audit seclists wordlists)
+AD_COMMANDS=(crackmapexec ldapdomaindump bloodhound-python)
+AD_PACKAGES=(crackmapexec ldapdomaindump python3-impacket bloodhound)
 REQUIRED_WORDLISTS=("/usr/share/seclists" "/usr/share/wordlists/rockyou.txt")
 
 missing_tools=()
@@ -143,6 +145,17 @@ for pkg in "${REQUIRED_PACKAGES[@]}"; do
     apt_install "$pkg"
   else
     ok "Package already installed: $pkg"
+  fi
+done
+
+info "Checking Active Directory tool packages"
+for pkg in "${AD_PACKAGES[@]}"; do
+  if dpkg -s "$pkg" >/dev/null 2>&1; then
+    ok "Package already installed: $pkg"
+  elif apt-cache show "$pkg" >/dev/null 2>&1; then
+    apt_install "$pkg"
+  else
+    warn "AD package not available in package cache: $pkg"
   fi
 done
 

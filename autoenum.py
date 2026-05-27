@@ -507,6 +507,46 @@ def linux_enum(target, hostname, outdir):
     enum4linux_scan(target, outdir)
     ssh_audit_scan(target, outdir)
 
+
+def run_module_script(script_name, script_args, outdir, fallback=None):
+    script_path = os.path.join(os.path.dirname(__file__), "scripts", script_name)
+    if os.path.isfile(script_path):
+        cmd = [sys.executable, script_path] + script_args
+        run_cmd(cmd, f"{outdir}/{script_name}.log", f"External module: {script_name}")
+    elif fallback:
+        warn(f"{script_name} not found — falling back to internal handler")
+        fallback()
+    else:
+        warn(f"{script_name} not found — skipping")
+
+
+def run_linux_module(target, hostname, port, outdir):
+    run_module_script(
+        "linux_enum.py",
+        [target, "--outdir", outdir],
+        outdir,
+        fallback=lambda: linux_enum(target, hostname, outdir)
+    )
+
+
+def run_privesc_module(outdir):
+    run_module_script(
+        "privesc_enum.py",
+        ["--outdir", outdir],
+        outdir
+    )
+
+
+def run_ad_module(target, outdir, username, password, domain):
+    args = [target, "--outdir", outdir]
+    if username:
+        args += ["--username", username]
+    if password:
+        args += ["--password", password]
+    if domain:
+        args += ["--domain", domain]
+    run_module_script("ad_enum.py", args, outdir)
+
 # ─── SUMMARY ──────────────────────────────────────────────────────────────────
 def summary(outdir, target, hostname, start_time):
     elapsed = datetime.now() - start_time
@@ -553,6 +593,11 @@ def main():
     p.add_argument("--param-path",    default="/",           help="Path for param fuzz (default: /)")
     p.add_argument("--skip-verify",   action="store_true",   help="Skip tool/wordlist verification")
     p.add_argument("--linux",         action="store_true",   help="Run extra HTB Linux enumeration phases")
+    p.add_argument("--privesc",       action="store_true",   help="Run privilege escalation helper scripts")
+    p.add_argument("--ad",           action="store_true",   help="Run Active Directory enumeration")
+    p.add_argument("--ad-user",       help="Username for Active Directory enumeration")
+    p.add_argument("--ad-pass",       help="Password for Active Directory enumeration")
+    p.add_argument("--ad-domain",     help="Domain name for Active Directory enumeration")
     args = p.parse_args()
 
     start  = datetime.now()
@@ -597,7 +642,13 @@ def main():
         ffuf_params(args.hostname, args.port, args.param_path, outdir)
 
     if args.linux:
-        linux_enum(args.target, args.hostname, outdir)
+        run_linux_module(args.target, args.hostname, args.port, outdir)
+
+    if args.privesc:
+        run_privesc_module(outdir)
+
+    if args.ad:
+        run_ad_module(args.target, outdir, args.ad_user, args.ad_pass, args.ad_domain)
 
     summary(outdir, args.target, args.hostname, start)
 

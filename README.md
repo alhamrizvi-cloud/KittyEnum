@@ -37,6 +37,28 @@ Run additional Linux-focused enumeration for HTB machines:
 sudo python3 autoenum.py <IP> <HOSTNAME> --linux
 ```
 
+Run the privilege escalation helper module after a shell is available:
+
+```bash
+sudo python3 autoenum.py <IP> <HOSTNAME> --privesc
+```
+
+KittyEnum now distributes specialized modules in `scripts/`:
+
+- `scripts/linux_enum.py` — HTB Linux enumeration scans
+- `scripts/privesc_enum.py` — privilege escalation helper script launcher
+- `scripts/ad_enum.py` — Active Directory reconnaissance and credential-based AD recon
+
+## Active Directory Enumeration
+
+Use the AD module to perform full Active Directory reconnaissance with optional credentials:
+
+```bash
+sudo python3 autoenum.py <IP> <HOSTNAME> --ad --ad-user <USER> --ad-pass <PASS> --ad-domain <DOMAIN>
+```
+
+When credentials are omitted, KittyEnum will attempt anonymous AD/LDAP enumeration where possible.
+
 ## Example
 
 ```bash
