@@ -8,13 +8,13 @@ KittyEnum is designed to be fast, repeatable, and easy to use while giving you r
 
 ## Dependency Installer
 
-Run the bundled installer to verify and install all required dependencies:
+Run the interactive installer to verify and install dependencies:
 
 ```bash
-./scripts/install_deps.sh
+./install.sh
 ```
 
-This script checks for the required tools and wordlists, installs missing packages with `apt`, and extracts `rockyou.txt` if needed.
+This script checks for available tools, prompts for the enumeration profile you want to install, installs missing packages with `apt`, verifies `seclists` and `rockyou.txt`, and can help configure alternate wordlist paths.
 
 ## Features
 
