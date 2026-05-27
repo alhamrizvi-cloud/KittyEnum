@@ -106,6 +106,10 @@ REQUIRED_COMMANDS=(python3 nmap gobuster ffuf enum4linux ssh-audit)
 REQUIRED_PACKAGES=(nmap gobuster ffuf enum4linux ssh-audit seclists wordlists)
 AD_COMMANDS=(crackmapexec ldapdomaindump bloodhound-python pwsh powershell)
 AD_PACKAGES=(crackmapexec ldapdomaindump python3-impacket bloodhound powershell)
+AWS_COMMANDS=(aws)
+AWS_PACKAGES=(awscli python3-boto3)
+SUBDOMAIN_COMMANDS=(subfinder amass assetfinder findomain chaos curl jq github-subdomains dnsx puredns massdns shuffledns httpx httprobe)
+SUBDOMAIN_PACKAGES=(subfinder amass assetfinder findomain chaos curl jq github-subdomains dnsx puredns massdns shuffledns httpx httprobe)
 REQUIRED_WORDLISTS=("/usr/share/seclists" "/usr/share/wordlists/rockyou.txt")
 
 missing_tools=()
@@ -165,6 +169,35 @@ for cmd in "${AD_COMMANDS[@]}"; do
     ok "AD command available: $cmd"
   else
     warn "AD command missing: $cmd"
+  fi
+done
+
+info "Checking AWS tool packages"
+for pkg in "${AWS_PACKAGES[@]}"; do
+  if dpkg -s "$pkg" >/dev/null 2>&1; then
+    ok "Package already installed: $pkg"
+  elif apt-cache show "$pkg" >/dev/null 2>&1; then
+    apt_install "$pkg"
+  else
+    warn "AWS package not available in package cache: $pkg"
+  fi
+done
+
+info "Checking AWS command availability"
+for cmd in "${AWS_COMMANDS[@]}"; do
+  if check_command "$cmd"; then
+    ok "AWS command available: $cmd"
+  else
+    warn "AWS command missing: $cmd"
+  fi
+done
+
+info "Checking optional subdomain enumeration tools"
+for cmd in "${SUBDOMAIN_COMMANDS[@]}"; do
+  if check_command "$cmd"; then
+    ok "Subdomain tool available: $cmd"
+  else
+    warn "Subdomain tool missing: $cmd"
   fi
 done
 

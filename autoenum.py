@@ -554,6 +554,40 @@ def run_ad_ps_module(outdir, download=False):
         args += ["--download"]
     run_module_script("ad_powershell.py", args, outdir)
 
+
+def run_aws_module(outdir, profile=None, region=None, access_key=None, secret_key=None, session_token=None, bucket=None):
+    args = ["--outdir", outdir]
+    if profile:
+        args += ["--profile", profile]
+    if region:
+        args += ["--region", region]
+    if access_key:
+        args += ["--access-key", access_key]
+    if secret_key:
+        args += ["--secret-key", secret_key]
+    if session_token:
+        args += ["--session-token", session_token]
+    if bucket:
+        args += ["--bucket", bucket]
+    run_module_script("aws_enum.py", args, outdir)
+
+
+def run_subdomain_module(target, outdir, github_token=None, wordlist=None, resolvers=None, passive=False, active=False, probe=False):
+    args = [target, "--outdir", outdir]
+    if github_token:
+        args += ["--github-token", github_token]
+    if wordlist:
+        args += ["--wordlist", wordlist]
+    if resolvers:
+        args += ["--resolvers", resolvers]
+    if passive:
+        args.append("--passive")
+    if active:
+        args.append("--active")
+    if probe:
+        args.append("--probe")
+    run_module_script("subdomain_enum.py", args, outdir)
+
 # ─── SUMMARY ──────────────────────────────────────────────────────────────────
 def summary(outdir, target, hostname, start_time):
     elapsed = datetime.now() - start_time
@@ -607,6 +641,20 @@ def main():
     p.add_argument("--ad-domain",     help="Domain name for Active Directory enumeration")
     p.add_argument("--ad-ps",        action="store_true",   help="Generate Active Directory PowerShell enumeration snippets")
     p.add_argument("--ad-ps-download", action="store_true", help="Download AD PowerShell tool scripts to output folder")
+    p.add_argument("--aws",          action="store_true",   help="Run AWS enumeration module")
+    p.add_argument("--aws-profile",   help="AWS CLI profile to use")
+    p.add_argument("--aws-region",    help="AWS region for API calls")
+    p.add_argument("--aws-access-key", help="AWS access key ID")
+    p.add_argument("--aws-secret-key", help="AWS secret access key")
+    p.add_argument("--aws-session-token", help="AWS session token")
+    p.add_argument("--aws-bucket",    help="Optional S3 bucket name for bucket-level enumeration")
+    p.add_argument("--subdomains",    action="store_true",   help="Run subdomain enumeration module")
+    p.add_argument("--subdomains-github-token", help="GitHub token for github-subdomains")
+    p.add_argument("--subdomains-wordlist", help="DNS wordlist for active subdomain brute force")
+    p.add_argument("--subdomains-resolvers", help="Resolver list for active subdomain tools")
+    p.add_argument("--subdomains-passive", action="store_true", help="Run only passive subdomain enumeration")
+    p.add_argument("--subdomains-active", action="store_true", help="Run only active subdomain enumeration")
+    p.add_argument("--subdomains-probe", action="store_true", help="Run HTTP probing against discovered hosts")
     args = p.parse_args()
 
     start  = datetime.now()
@@ -658,6 +706,29 @@ def main():
 
     if args.ad:
         run_ad_module(args.target, outdir, args.ad_user, args.ad_pass, args.ad_domain)
+
+    if args.subdomains:
+        run_subdomain_module(
+            args.target,
+            outdir,
+            github_token=args.subdomains_github_token,
+            wordlist=args.subdomains_wordlist,
+            resolvers=args.subdomains_resolvers,
+            passive=args.subdomains_passive,
+            active=args.subdomains_active,
+            probe=args.subdomains_probe,
+        )
+
+    if args.aws:
+        run_aws_module(
+            outdir,
+            profile=args.aws_profile,
+            region=args.aws_region,
+            access_key=args.aws_access_key,
+            secret_key=args.aws_secret_key,
+            session_token=args.aws_session_token,
+            bucket=args.aws_bucket,
+        )
 
     if args.ad_ps:
         run_ad_ps_module(outdir, download=args.ad_ps_download)

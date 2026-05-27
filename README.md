@@ -43,7 +43,23 @@ Run the SSH-friendly privilege escalation helper module after a shell is availab
 ```bash
 python3 autoenum.py <IP> <HOSTNAME> --privesc
 ```
+Run AWS enumeration using AWS CLI credentials or profile:
 
+```bash
+python3 autoenum.py <IP> <HOSTNAME> --aws --aws-profile default --aws-region us-east-1
+```
+
+Run AWS S3 bucket enumeration with no-sign-request:
+
+```bash
+python3 autoenum.py <IP> <HOSTNAME> --aws --aws-region us-east-1 --aws-bucket target-bucket-name
+```
+
+Run subdomain enumeration with passive, active, and probing stages:
+
+```bash
+python3 autoenum.py <IP> <HOSTNAME> --subdomains --subdomains-wordlist /usr/share/seclists/Discovery/DNS/subdomains-top1million-110000.txt --subdomains-resolvers ./resolvers.txt
+```
 Generate Active Directory PowerShell enumeration snippets:
 
 ```bash
@@ -62,6 +78,8 @@ KittyEnum now distributes specialized modules in `kittyenum/`:
 - `kittyenum/privesc_enum.py` — privilege escalation helper script launcher
 - `kittyenum/ad_enum.py` — Active Directory reconnaissance and credential-based AD recon
 - `kittyenum/ad_powershell.py` — PowerShell command snippet generation and optional AD tool download
+- `kittyenum/aws_enum.py` — AWS reconnaissance using AWS CLI or boto3
+- `kittyenum/subdomain_enum.py` — passive + active subdomain enumeration and HTTP probing
 
 ## Active Directory Enumeration
 
