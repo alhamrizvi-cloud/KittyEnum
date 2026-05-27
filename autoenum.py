@@ -509,7 +509,7 @@ def linux_enum(target, hostname, outdir):
 
 
 def run_module_script(script_name, script_args, outdir, fallback=None):
-    script_path = os.path.join(os.path.dirname(__file__), "scripts", script_name)
+    script_path = os.path.join(os.path.dirname(__file__), "kittyenum", script_name)
     if os.path.isfile(script_path):
         cmd = [sys.executable, script_path] + script_args
         run_cmd(cmd, f"{outdir}/{script_name}.log", f"External module: {script_name}")

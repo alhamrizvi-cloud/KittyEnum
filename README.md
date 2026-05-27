@@ -11,7 +11,7 @@ KittyEnum is designed to be fast, repeatable, and easy to use while giving you r
 Run the bundled installer to verify and install all required dependencies:
 
 ```bash
-./install_deps.sh
+./scripts/install_deps.sh
 ```
 
 This script checks for the required tools and wordlists, installs missing packages with `apt`, and extracts `rockyou.txt` if needed.
@@ -43,11 +43,11 @@ Run the privilege escalation helper module after a shell is available:
 sudo python3 autoenum.py <IP> <HOSTNAME> --privesc
 ```
 
-KittyEnum now distributes specialized modules in `scripts/`:
+KittyEnum now distributes specialized modules in `kittyenum/`:
 
-- `scripts/linux_enum.py` — HTB Linux enumeration scans
-- `scripts/privesc_enum.py` — privilege escalation helper script launcher
-- `scripts/ad_enum.py` — Active Directory reconnaissance and credential-based AD recon
+- `kittyenum/linux_enum.py` — HTB Linux enumeration scans
+- `kittyenum/privesc_enum.py` — privilege escalation helper script launcher
+- `kittyenum/ad_enum.py` — Active Directory reconnaissance and credential-based AD recon
 
 ## Active Directory Enumeration
 
