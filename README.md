@@ -16,6 +16,8 @@ Run the interactive installer to verify and install dependencies:
 
 This script checks for available tools, prompts for the enumeration profile you want to install, installs missing packages with `apt`, verifies `seclists` and `rockyou.txt`, and can help configure alternate wordlist paths.
 
+For lightweight Python setup, see `INSTALLATION.md`. To use the shorter command name `kittyenum`, see `CONFIGURATION.md`.
+
 ## Features
 
 - Auto-verifies essential tools: `nmap`, `gobuster`, `ffuf`

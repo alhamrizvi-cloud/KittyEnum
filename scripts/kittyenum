@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# KittyEnum command wrapper. Install this script to PATH to run `kittyenum`.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec python3 "$SCRIPT_DIR/kittyenum.py" "$@"
