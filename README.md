@@ -43,11 +43,24 @@ Run the privilege escalation helper module after a shell is available:
 sudo python3 autoenum.py <IP> <HOSTNAME> --privesc
 ```
 
+Generate Active Directory PowerShell enumeration snippets:
+
+```bash
+sudo python3 autoenum.py <IP> <HOSTNAME> --ad-ps
+```
+
+Download the AD PowerShell tool scripts to the output directory:
+
+```bash
+sudo python3 autoenum.py <IP> <HOSTNAME> --ad-ps --ad-ps-download
+```
+
 KittyEnum now distributes specialized modules in `kittyenum/`:
 
 - `kittyenum/linux_enum.py` — HTB Linux enumeration scans
 - `kittyenum/privesc_enum.py` — privilege escalation helper script launcher
 - `kittyenum/ad_enum.py` — Active Directory reconnaissance and credential-based AD recon
+- `kittyenum/ad_powershell.py` — PowerShell command snippet generation and optional AD tool download
 
 ## Active Directory Enumeration
 

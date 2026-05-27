@@ -547,6 +547,13 @@ def run_ad_module(target, outdir, username, password, domain):
         args += ["--domain", domain]
     run_module_script("ad_enum.py", args, outdir)
 
+
+def run_ad_ps_module(outdir, download=False):
+    args = ["--outdir", outdir]
+    if download:
+        args += ["--download"]
+    run_module_script("ad_powershell.py", args, outdir)
+
 # ─── SUMMARY ──────────────────────────────────────────────────────────────────
 def summary(outdir, target, hostname, start_time):
     elapsed = datetime.now() - start_time
@@ -598,6 +605,8 @@ def main():
     p.add_argument("--ad-user",       help="Username for Active Directory enumeration")
     p.add_argument("--ad-pass",       help="Password for Active Directory enumeration")
     p.add_argument("--ad-domain",     help="Domain name for Active Directory enumeration")
+    p.add_argument("--ad-ps",        action="store_true",   help="Generate Active Directory PowerShell enumeration snippets")
+    p.add_argument("--ad-ps-download", action="store_true", help="Download AD PowerShell tool scripts to output folder")
     args = p.parse_args()
 
     start  = datetime.now()
@@ -649,6 +658,9 @@ def main():
 
     if args.ad:
         run_ad_module(args.target, outdir, args.ad_user, args.ad_pass, args.ad_domain)
+
+    if args.ad_ps:
+        run_ad_ps_module(outdir, download=args.ad_ps_download)
 
     summary(outdir, args.target, args.hostname, start)
 

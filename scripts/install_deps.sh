@@ -104,8 +104,8 @@ ensure_apt
 
 REQUIRED_COMMANDS=(python3 nmap gobuster ffuf enum4linux ssh-audit)
 REQUIRED_PACKAGES=(nmap gobuster ffuf enum4linux ssh-audit seclists wordlists)
-AD_COMMANDS=(crackmapexec ldapdomaindump bloodhound-python)
-AD_PACKAGES=(crackmapexec ldapdomaindump python3-impacket bloodhound)
+AD_COMMANDS=(crackmapexec ldapdomaindump bloodhound-python pwsh powershell)
+AD_PACKAGES=(crackmapexec ldapdomaindump python3-impacket bloodhound powershell)
 REQUIRED_WORDLISTS=("/usr/share/seclists" "/usr/share/wordlists/rockyou.txt")
 
 missing_tools=()
@@ -156,6 +156,15 @@ for pkg in "${AD_PACKAGES[@]}"; do
     apt_install "$pkg"
   else
     warn "AD package not available in package cache: $pkg"
+  fi
+done
+
+info "Checking Active Directory command availability"
+for cmd in "${AD_COMMANDS[@]}"; do
+  if check_command "$cmd"; then
+    ok "AD command available: $cmd"
+  else
+    warn "AD command missing: $cmd"
   fi
 done
 
