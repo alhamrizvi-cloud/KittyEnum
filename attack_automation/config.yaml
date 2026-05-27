@@ -1,0 +1,28 @@
+# Attack Automation configuration
+
+vpn:
+  config_path: "/path/to/your/openvpn.ovpn"
+  command: null
+
+llm:
+  provider: "openai"
+  model: "gpt-4o"
+  max_tokens: 1500
+  temperature: 0.2
+  api_key: null
+
+host:
+  hostname: "example-target.local"
+  ip: "10.10.10.10"
+  ssh_user: "ubuntu"
+  ssh_port: 22
+  ssh_key: "~/.ssh/id_rsa"
+  ssh_password: null
+
+workflows:
+  - name: "recon"
+    description: "Collect system information and open services"
+  - name: "initial_access"
+    description: "Attempt initial foothold using non-destructive checks"
+  - name: "privilege_escalation"
+    description: "Enumerate local privilege escalation vectors"
