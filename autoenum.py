@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
-autoenum.py — Full Auto Recon & Enumeration Script
+KittyEnum — Smart Recon & Enumeration Toolkit
 Tested  : Parrot OS — paths verified against your machine
+
+KittyEnum is a fast, opinionated enumeration helper for pentesters and CTF players.
+It validates local tooling and wordlists, runs TCP/UDP scans, adds host mappings,
+and performs directory, virtual-host, and parameter fuzzing in one pass.
 
 USAGE:
   sudo python3 autoenum.py <IP> <HOSTNAME> [options]
@@ -47,18 +51,17 @@ WL_DIRBUST  = f"{SECLISTS}/Discovery/Web-Content/DirBuster-2007_directory-list-2
 
 # ─── COLORS ───────────────────────────────────────────────────────────────────
 R="\033[91m"; G="\033[92m"; Y="\033[93m"
-B="\033[94m"; C="\033[96m"; W="\033[0m"; BOLD="\033[1m"; DIM="\033[2m"
+B="\033[94m"; C="\033[96m"; M="\033[95m"; W="\033[0m"; BOLD="\033[1m"; DIM="\033[2m"
 
 def banner():
-    print(f"""{C}{BOLD}
- ░█████╗░██╗░░░██╗████████╗░█████╗░███████╗███╗░░██╗██╗░░░██╗███╗░░░███╗
- ██╔══██╗██║░░░██║╚══██╔══╝██╔══██╗██╔════╝████╗░██║██║░░░██║████╗░████║
- ███████║██║░░░██║░░░██║░░░██║░░██║█████╗░░██╔██╗██║██║░░░██║██╔████╔██║
- ██╔══██║██║░░░██║░░░██║░░░██║░░██║██╔══╝░░██║╚████║██║░░░██║██║╚██╔╝██║
- ██║░░██║╚██████╔╝░░░██║░░░╚█████╔╝███████╗██║░╚███║╚██████╔╝██║░╚═╝░██║
- ╚═╝░░╚═╝░╚═════╝░░░╚═╝░░░░╚════╝░╚══════╝╚═╝░░╚══╝░╚═════╝░╚═╝░░░░░╚═╝
-{W}{DIM}         Auto Recon & Enumeration v2.1 — Parrot OS Edition{W}
-""")
+    art = ""
+    try:
+        with open(os.path.join(os.path.dirname(__file__), "logo.txt"), encoding="utf-8") as f:
+            art = f.read().rstrip()
+    except Exception:
+        art = "KittyEnum — Smart Recon & Enumeration Toolkit"
+
+    print(f"""{M}{BOLD}{art}{W}\n{DIM}         KittyEnum — Smart Recon & Enumeration Toolkit{W}""")
 
 def ph(n, msg):
     label = f"Phase {n} — {msg}"
@@ -147,7 +150,7 @@ def detect_wildcard(url):
     """Probe random path to detect wildcard redirect — returns (is_wildcard, body_size, status_code)."""
     fake = f"{url}/{uuid.uuid4()}.html"
     try:
-        req    = urllib.request.Request(fake, headers={"User-Agent": "autoenum/2.1"})
+        req    = urllib.request.Request(fake, headers={"User-Agent": "kittyenum/2.1"})
         opener = urllib.request.build_opener(urllib.request.HTTPRedirectHandler())
         try:
             resp = opener.open(req, timeout=6)
@@ -492,7 +495,7 @@ def summary(outdir, target, hostname, start_time):
 def main():
     banner()
     p = argparse.ArgumentParser(
-        description="Auto Enumeration v2.1 — Parrot OS",
+        description="KittyEnum — Smart Recon & Enumeration Toolkit",
         formatter_class=argparse.RawTextHelpFormatter
     )
     p.add_argument("target",          help="Target IP  e.g. 10.10.10.10")
