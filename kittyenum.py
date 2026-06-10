@@ -31,7 +31,7 @@ PHASES:
 All output → ./recon-<hostname>-<timestamp>/
 """
 
-import subprocess, sys, os, shutil, argparse, socket, urllib.request, urllib.error, uuid
+import subprocess, sys, os, shutil, argparse, socket, urllib.request, urllib.error, uuid, threading
 from datetime import datetime
 
 # ─── PARROT OS VERIFIED WORDLIST PATHS ────────────────────────────────────────
@@ -52,15 +52,24 @@ WL_DIRBUST  = f"{SECLISTS}/Discovery/Web-Content/DirBuster-2007_directory-list-2
 # ─── COLORS ───────────────────────────────────────────────────────────────────
 R="\033[91m"; G="\033[92m"; Y="\033[93m"
 B="\033[94m"; C="\033[96m"; M="\033[95m"; W="\033[0m"; BOLD="\033[1m"; DIM="\033[2m"
+PRINT_LOCK = threading.Lock()
+
+FREAKY_KITTY_ART = r"""
+⠀⠀⠀⠀⢀⠠⠤⠀⢀⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠐⠀⠐⠀⠀⢀⣾⣿⡇⠀⠀⠀⠀⠀⢀⣼⡇⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⣸⣿⣿⣿⠀⠀⠀⠀⣴⣿⣿⠇⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⢠⣿⣿⣿⣇⠀⠀⢀⣾⣿⣿⣿⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⣴⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⡟⠀⠀⠐⠀⡀
+⠀⠀⠀⠀⢰⡿⠉⠀⡜⣿⣿⣿⡿⠿⢿⣿⣿⡃⠀⠀⠂⠄⠀
+⠀⠀⠒⠒⠸⣿⣄⡘⣃⣿⣿⡟⢰⠃⠀⢹⣿⡇⠀⠀⠀⠀⠀
+⠀⠀⠚⠉⠀⠊⠻⣿⣿⣿⣿⣿⣮⣤⣤⣿⡟⠁⠘⠠⠁⠀⠀
+⠀⠀⠀⠀⠀⠠⠀⠀⠈⠙⠛⠛⠛⠛⠛⠁⠀⠒⠤⠀⠀⠀⠀
+⠨⠠⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠑⠀⠀⠀⠀⠀⠀
+⠁⠃⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+"""
 
 def banner():
-    art = ""
-    try:
-        with open(os.path.join(os.path.dirname(__file__), "logo.txt"), encoding="utf-8") as f:
-            art = f.read().rstrip()
-    except Exception:
-        art = "KittyEnum — Smart Recon & Enumeration Toolkit"
-
+    art = FREAKY_KITTY_ART
     print(f"""{M}{BOLD}{art}{W}\n{DIM}         KittyEnum — Smart Recon & Enumeration Toolkit{W}""")
 
 def ph(n, msg):
@@ -165,12 +174,18 @@ def detect_wildcard(url):
     except Exception:
         return False, 0, 0
 
-def run_cmd(cmd, outfile, label=""):
+def run_cmd(cmd, outfile, label="", prefix=False):
     """Stream command → terminal + file."""
     os.makedirs(os.path.dirname(os.path.abspath(outfile)), exist_ok=True)
-    info(f"CMD  → {' '.join(cmd)}")
-    info(f"FILE → {outfile}")
-    sep()
+    if prefix:
+        with PRINT_LOCK:
+            info(f"CMD  → {' '.join(cmd)}")
+            info(f"FILE → {outfile}")
+            sep()
+    else:
+        info(f"CMD  → {' '.join(cmd)}")
+        info(f"FILE → {outfile}")
+        sep()
     with open(outfile, "w") as f:
         f.write(f"# ── {label} ──\n")
         f.write(f"# CMD  : {' '.join(cmd)}\n")
@@ -180,17 +195,30 @@ def run_cmd(cmd, outfile, label=""):
             text=True, bufsize=1
         )
         for line in proc.stdout:
-            sys.stdout.write("    " + line)
-            sys.stdout.flush()
+            if prefix:
+                with PRINT_LOCK:
+                    sys.stdout.write(f"  {DIM}[{label:^14}]{W} {line}")
+                    sys.stdout.flush()
+            else:
+                sys.stdout.write("    " + line)
+                sys.stdout.flush()
             f.write(line)
         proc.wait()
         f.write(f"\n# END: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         rc = proc.returncode
-    sep()
-    if rc == 0:
-        ok(f"Done → {outfile}")
+    if prefix:
+        with PRINT_LOCK:
+            sep()
+            if rc == 0:
+                ok(f"Done → {outfile}")
+            else:
+                warn(f"Exit code {rc} — output saved: {outfile}")
     else:
-        warn(f"Exit code {rc} — output saved: {outfile}")
+        sep()
+        if rc == 0:
+            ok(f"Done → {outfile}")
+        else:
+            warn(f"Exit code {rc} — output saved: {outfile}")
     return rc
 
 def wildcard_flags_gobuster(url):
@@ -223,6 +251,231 @@ def extract_open_ports(nmap_file):
 def make_url(hostname, port):
     scheme = "https" if port == 443 else "http"
     return f"{scheme}://{hostname}" if port in (80, 443) else f"{scheme}://{hostname}:{port}"
+
+
+def run_cmds_parallel(tasks):
+    threads = []
+    for task in tasks:
+        th = threading.Thread(
+            target=run_cmd,
+            args=(task['cmd'], task['outfile'], task['label']),
+            kwargs={'prefix': True}
+        )
+        th.start()
+        threads.append(th)
+    for th in threads:
+        th.join()
+
+
+def build_gobuster_dir_task(hostname, port, outdir, big=False):
+    wl = WL_RAFT_MED if (big and os.path.isfile(WL_RAFT_MED)) else WL_COMMON
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/gobuster_dir.txt"
+    wc_flags = wildcard_flags_gobuster(url)
+    cmd = [
+        "gobuster", "dir",
+        "-u", url, "-w", wl,
+        "-t", "60",
+        "-x", "php,html,txt,js,json,bak,zip,conf,xml,sh",
+        "--no-error", "--timeout", "10s",
+        "-o", outfile,
+    ] + wc_flags
+    return {"label": "GOBUSTER_DIR", "cmd": cmd, "outfile": outfile, "desc": "Gobuster dir"}
+
+
+def build_gobuster_rockyou_task(hostname, port, outdir):
+    if not os.path.isfile(WL_ROCKYOU):
+        warn(f"rockyou.txt not found — skipping  ({WL_ROCKYOU})")
+        warn("Run: sudo gunzip /usr/share/wordlists/rockyou.txt.gz")
+        return None
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/gobuster_rockyou.txt"
+    lines = sum(1 for _ in open(WL_ROCKYOU, "rb"))
+    info(f"Wordlist : {WL_ROCKYOU}  ({lines:,} lines)")
+    warn("14M lines — this will take time. Ctrl+C to stop early, results saved so far.")
+    wc_flags = wildcard_flags_gobuster(url)
+    cmd = [
+        "gobuster", "dir",
+        "-u", url, "-w", WL_ROCKYOU,
+        "-t", "80",
+        "-x", "php,html,txt,bak,zip,sh",
+        "--no-error", "--timeout", "10s",
+        "-o", outfile,
+    ] + wc_flags
+    return {"label": "GOBUSTER_ROCKYOU", "cmd": cmd, "outfile": outfile, "desc": "Gobuster rockyou"}
+
+
+def build_gobuster_vhost_task(target, hostname, port, outdir):
+    wl = next((w for w in [WL_SUB_5K, WL_SUB_20K, WL_SUB_BITQ] if os.path.isfile(w)), None)
+    if not wl:
+        warn("No subdomain wordlist found — skipping")
+        return None
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/gobuster_vhost.txt"
+    cmd = [
+        "gobuster", "vhost",
+        "-u", url, "-w", wl,
+        "-t", "60",
+        "--append-domain",
+        "--no-error",
+        "-o", outfile,
+    ]
+    return {"label": "GOBUSTER_VHOST", "cmd": cmd, "outfile": outfile, "desc": "Gobuster vhost"}
+
+
+def build_gobuster_api_task(hostname, port, outdir):
+    if not os.path.isfile(WL_API):
+        warn(f"API wordlist not found — skipping  ({WL_API})")
+        return None
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/gobuster_api.txt"
+    cmd = [
+        "gobuster", "dir",
+        "-u", url, "-w", WL_API,
+        "-t", "60",
+        "-x", "json,php,txt",
+        "--no-error", "--timeout", "10s",
+        "-o", outfile,
+    ]
+    return {"label": "GOBUSTER_API", "cmd": cmd, "outfile": outfile, "desc": "Gobuster API endpoints"}
+
+
+def build_gobuster_dirbuster_task(hostname, port, outdir):
+    if not os.path.isfile(WL_DIRBUST):
+        warn(f"DirBuster wordlist not found — skipping  ({WL_DIRBUST})")
+        return None
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/gobuster_dirbuster.txt"
+    cmd = [
+        "gobuster", "dir",
+        "-u", url, "-w", WL_DIRBUST,
+        "-t", "60",
+        "-x", "php,html,txt,bak,zip,conf",
+        "--no-error", "--timeout", "10s",
+        "-o", outfile,
+    ]
+    return {"label": "GOBUSTER_DIRBUST", "cmd": cmd, "outfile": outfile, "desc": "Gobuster DirBuster"}
+
+
+def build_ffuf_dir_task(hostname, port, outdir):
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/ffuf_dir.txt"
+    wc_flags = wildcard_flags_ffuf(url)
+    cmd = [
+        "ffuf",
+        "-u", f"{url}/FUZZ",
+        "-w", WL_COMMON,
+        "-t", "150",
+        "-mc", "200,201,204,301,302,307,401,403,405,500",
+        "-ic", "-c",
+        "-o", outfile, "-of", "md",
+    ] + wc_flags
+    return {"label": "FFUF_DIR", "cmd": cmd, "outfile": outfile, "desc": "FFUF dir"}
+
+
+def build_ffuf_vhost_task(target, hostname, port, outdir):
+    wl = next((w for w in [WL_SUB_5K, WL_SUB_20K] if os.path.isfile(w)), None)
+    if not wl:
+        warn("No subdomain wordlist — skipping")
+        return None
+    url = make_url(target, port)
+    outfile = f"{outdir}/ffuf_vhost.txt"
+    wc_flags = wildcard_flags_ffuf(url)
+    if not wc_flags:
+        wc_flags = ["-fs", "0"]
+        warn("No wildcard size detected — using -fs 0. Adjust if noisy.")
+    cmd = [
+        "ffuf",
+        "-u", url,
+        "-H", f"Host: FUZZ.{hostname}",
+        "-w", wl,
+        "-t", "100",
+        "-mc", "200,201,301,302,307,401,403,405",
+        "-ic", "-c",
+        "-o", outfile, "-of", "md",
+    ] + wc_flags
+    return {"label": "FFUF_VHOST", "cmd": cmd, "outfile": outfile, "desc": "FFUF vhost"}
+
+
+def build_ffuf_params_task(hostname, port, param_path, outdir):
+    if not os.path.isfile(WL_PARAMS):
+        warn(f"burp-parameter-names.txt not found — skipping")
+        return None
+    url = make_url(hostname, port)
+    outfile = f"{outdir}/ffuf_params.txt"
+    cmd = [
+        "ffuf",
+        "-u", f"{url}{param_path}?FUZZ=autoenum_test",
+        "-w", WL_PARAMS,
+        "-t", "80",
+        "-mc", "200,301,302,400,401,403,405,500",
+        "-ic", "-c",
+        "-o", outfile, "-of", "md",
+    ]
+    return {"label": "FFUF_PARAMS", "cmd": cmd, "outfile": outfile, "desc": "FFUF params"}
+
+
+def report_parallel_vhost_hits(outdir):
+    try:
+        hits = [l.strip() for l in open(f"{outdir}/gobuster_vhost.txt") if "Found:" in l or "Status: 200" in l]
+        if hits:
+            ok(f"Subdomains found by gobuster ({len(hits)}):")
+            for h in hits[:20]:
+                print(f"    {G}→{W} {h}")
+    except Exception:
+        pass
+    try:
+        hits = [l for l in open(f"{outdir}/ffuf_vhost.txt") if "| 2" in l or "| 3" in l or "| 4" in l]
+        if hits:
+            ok(f"Subdomains found by ffuf ({len(hits)}):")
+            for h in hits[:20]:
+                print(f"    {G}→{W} {h.strip()}")
+    except Exception:
+        pass
+
+
+def build_parallel_tasks(args, outdir):
+    tasks = []
+    tasks.append(build_gobuster_dir_task(args.hostname, args.port, outdir, big=args.big))
+    if not args.no_rockyou:
+        rockyou_task = build_gobuster_rockyou_task(args.hostname, args.port, outdir)
+        if rockyou_task:
+            tasks.append(rockyou_task)
+    if not args.no_vhost:
+        vhost_task = build_gobuster_vhost_task(args.target, args.hostname, args.port, outdir)
+        if vhost_task:
+            tasks.append(vhost_task)
+    if not args.no_enum:
+        api_task = build_gobuster_api_task(args.hostname, args.port, outdir)
+        if api_task:
+            tasks.append(api_task)
+        dirbuster_task = build_gobuster_dirbuster_task(args.hostname, args.port, outdir)
+        if dirbuster_task:
+            tasks.append(dirbuster_task)
+    tasks.append(build_ffuf_dir_task(args.hostname, args.port, outdir))
+    if not args.no_vhost:
+        ffuf_vhost_task = build_ffuf_vhost_task(args.target, args.hostname, args.port, outdir)
+        if ffuf_vhost_task:
+            tasks.append(ffuf_vhost_task)
+    if not args.no_params:
+        ffuf_params_task = build_ffuf_params_task(args.hostname, args.port, args.param_path, outdir)
+        if ffuf_params_task:
+            tasks.append(ffuf_params_task)
+    return [task for task in tasks if task]
+
+
+def multi_scan(args, outdir):
+    tasks = build_parallel_tasks(args, outdir)
+    if not tasks:
+        warn("No multitask scan tasks selected — skipping.")
+        return
+    ph("⧖", f"Concurrent enumeration ({len(tasks)} tasks)")
+    ok("Running gobuster + ffuf tasks together in the same terminal")
+    for task in tasks:
+        info(f"{task['label']:<14} {task['desc']} -> {task['outfile']}")
+    sep()
+    run_cmds_parallel(tasks)
+    report_parallel_vhost_hits(outdir)
 
 # ─── PHASE 1: TCP NMAP ────────────────────────────────────────────────────────
 def tcp_scan(target, outdir):
@@ -633,6 +886,7 @@ def main():
     p.add_argument("--big",           action="store_true",   help="Use raft-medium for gobuster dir")
     p.add_argument("--param-path",    default="/",           help="Path for param fuzz (default: /)")
     p.add_argument("--skip-verify",   action="store_true",   help="Skip tool/wordlist verification")
+    p.add_argument("--no-multitask",  action="store_true",   help="Run enumeration phases sequentially instead of multitasking")
     p.add_argument("--linux",         action="store_true",   help="Run extra HTB Linux enumeration phases")
     p.add_argument("--privesc",       action="store_true",   help="Run privilege escalation helper scripts")
     p.add_argument("--ad",           action="store_true",   help="Run Active Directory enumeration")
@@ -679,24 +933,27 @@ def main():
     if not args.no_hosts:
         add_hosts(args.target, args.hostname)
 
-    gobuster_dir(args.hostname, args.port, outdir, big=args.big)
+    if args.no_multitask:
+        gobuster_dir(args.hostname, args.port, outdir, big=args.big)
 
-    if not args.no_rockyou:
-        gobuster_rockyou(args.hostname, args.port, outdir)
+        if not args.no_rockyou:
+            gobuster_rockyou(args.hostname, args.port, outdir)
 
-    if not args.no_vhost:
-        gobuster_vhost(args.target, args.hostname, args.port, outdir)
+        if not args.no_vhost:
+            gobuster_vhost(args.target, args.hostname, args.port, outdir)
 
-    if not args.no_enum:
-        gobuster_enum(args.hostname, args.port, outdir)
+        if not args.no_enum:
+            gobuster_enum(args.hostname, args.port, outdir)
 
-    ffuf_dir(args.hostname, args.port, outdir)
+        ffuf_dir(args.hostname, args.port, outdir)
 
-    if not args.no_vhost:
-        ffuf_vhost(args.target, args.hostname, args.port, outdir)
+        if not args.no_vhost:
+            ffuf_vhost(args.target, args.hostname, args.port, outdir)
 
-    if not args.no_params:
-        ffuf_params(args.hostname, args.port, args.param_path, outdir)
+        if not args.no_params:
+            ffuf_params(args.hostname, args.port, args.param_path, outdir)
+    else:
+        multi_scan(args, outdir)
 
     if args.linux:
         run_linux_module(args.target, args.hostname, args.port, outdir)
