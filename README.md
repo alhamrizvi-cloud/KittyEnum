@@ -1,3 +1,5 @@
+<img width="306" height="220" alt="image" src="https://github.com/user-attachments/assets/ffa7fdc7-71ac-42c9-a5a6-76f0e848a08f" />
+
 # KittyEnum
 
 KittyEnum is a fast, opinionated reconnaissance and enumeration toolkit designed for penetration testers, red teamers, and CTF players. It combines multiple scanning and fuzzing tools into one streamlined Python script, providing a single terminal workflow for network scanning, directory discovery, virtual-host enumeration, and parameter fuzzing.
