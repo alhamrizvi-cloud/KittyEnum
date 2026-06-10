@@ -24,20 +24,19 @@ git clone https://github.com/alhamrizvi-cloud/KittyEnum.git
 cd KittyEnum
 ```
 
-2. Install dependencies:
+2. Run the included installer script to set up tools, requirements, and wordlists:
 
 ```bash
-sudo apt update
-sudo apt install python3 python3-pip nmap gobuster ffuf
-pip3 install -r requirements.txt
+sudo ./install.sh
 ```
 
-3. Optional wordlists (recommended):
+3. If you need additional dependencies, run:
 
 ```bash
-sudo apt install seclists
-sudo gunzip /usr/share/wordlists/rockyou.txt.gz
+./scripts/install_deps.sh
 ```
+
+The installer script handles the full setup for KittyEnum, including required Python packages, tool checks, and wordlists.
 
 ## Usage
 
@@ -68,7 +67,7 @@ KittyEnum saves all results under `./recon-<hostname>-<timestamp>/` and prints a
 ## Notes
 
 - Run the script with `sudo` for SYN scans and `/etc/hosts` updates.
-- Ensure `nmap`, `gobuster`, `ffuf`, and required wordlists are installed before use.
+- Use `sudo ./install.sh` to prepare the environment and install required dependencies.
 
 ---
 
